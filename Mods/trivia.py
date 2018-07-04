@@ -7,7 +7,8 @@ Carlos Saucedo, 2018
 from random import randint
 from Mods.triviaSet import triviaSet
 from Mods.triviaScore import triviaScore
-import re
+from Mods.economy import userInDB,getCurrentDay
+import re, pymysql
 from array import array
 class triviaGame:
     def __init__(self, questionPath, answerPath):
@@ -61,21 +62,11 @@ class triviaGame:
             if x.getServer() == serverID:
                 return x.getAnswer()
     
-    def getScore(self, userID):
-        #Returns the score for the author of the message.
-        leaderboardFile = open("leaderboard.txt", "r")
-        self.leaderboardList = leaderboardFile.read().splitlines()
-        leaderboardFile.close()
-        self.user = str(userID)
-        userInList = False
-        for line in self.leaderboardList:
-            splitLine = line.split()
-            if splitLine[1] == self.user:
-                userInList = True
-                return splitLine [2]
-        if userInList == False:
-            return 0
-        
+    def getScore(self, userID, connection):
+            with connection.cursor() as cursor:
+                cursor.execute("".join(("SELECT intScore FROM tblUser WHERE userID = ",userID)))
+                return cursor.fetchone()
+
     def getSent(self, serverID):
         inList = False
         for x in self.setList:
@@ -90,83 +81,37 @@ class triviaGame:
             if x.getServer() == serverID:
                 x.setSent(state)
         
-    def addPoint(self, serverID, userID):
+    def addPoint(self, serverID, userID, connection):
         #Adds a point to the given user's score.
-        leaderboardFile = open("leaderboard.txt", "r")
-        self.leaderboardList = leaderboardFile.read().splitlines()
-        leaderboardFile.close()
-        userInList = False
-        index = 0
-        self.user = str(userID)
-        self.server = str(serverID)
-        for line in self.leaderboardList:
-            splitLine = line.split()
-            if splitLine[1] == self.user:
-                self.server = splitLine[0]
-                currentPoints = int(splitLine[2])
-                self.newPoints = currentPoints + 1
-                userInList = True # User is in leaderboard.
-                #Replace line in leaderboard file
-                leaderboardList = open("leaderboard.txt").read().splitlines()
-                leaderboardList[index] = self.server + " " + self.user + " " + str(self.newPoints)
-                open("leaderboard.txt", "w").write("\n".join(leaderboardList))
-            index = index + 1
-    
-    def addPoints(self, serverID, userID, amount):
-        #Adds a set amount of points to the given user's score
-        leaderboardFile = open("leaderboard.txt", "r")
-        self.leaderboardList = leaderboardFile.read().splitlines()
-        leaderboardFile.close()
-        userInList = False
-        index = 0
-        self.user = str(userID)
-        self.server = str(serverID)
-        for line in self.leaderboardList:
-            splitLine = line.split()
-            if splitLine[1] == self.user:
-                self.server = splitLine[0]
-                currentPoints = int(splitLine[2])
-                self.newPoints = currentPoints + amount
-                userInList = True # User is in leaderboard.
-                #Replace line in leaderboard file
-                leaderboardList = open("leaderboard.txt").read().splitlines()
-                leaderboardList[index] = self.server + " " + self.user + " " + str(self.newPoints)
-                open("leaderboard.txt", "w").write("\n".join(leaderboardList))
-            index = index + 1    
-    
-        if userInList == False:
-            #User is not in the leaderboard.
-            leaderboardFile = open("leaderboard.txt", "a+")
-            leaderboardFile.write("\n" + str(serverID) + " " + str(userID) + " " + str(self.newPoints))
-            leaderboardFile.close()
+            if self.userInDB(userID,connection):
+                with connection.cursor() as cursor:
+                    cursor.execute("".join(("SELECT intScore FROM tblUser WHERE userID = ",userID)))
+                    oldScore = cursor.fetchone()
+                    cursor.execute("".join(("UPDATE tblUser SET intScore = ",oldScore + 1," WHERE userID = ",userID)))
+            else:
+                with connection.cursor() as cursor:
+                    cursor.execute("".join(("INSERT INTO tblUser (userID,intCollectionDate,intScore) VALUES (",userID,",",None,",",1,")")))
+            connection.commit()
             
-    def subtractPoints(self, serverID, userID, amount):
-        #Adds a set amount of points to the given user's score
-        leaderboardFile = open("leaderboard.txt", "r")
-        self.leaderboardList = leaderboardFile.read().splitlines()
-        leaderboardFile.close()
-        userInList = False
-        index = 0
-        self.user = str(userID)
-        self.server = str(serverID)
-        for line in self.leaderboardList:
-            splitLine = line.split()
-            if splitLine[1] == self.user:
-                self.server = splitLine[0]
-                currentPoints = int(splitLine[2])
-                self.newPoints = currentPoints - amount
-                userInList = True # User is in leaderboard.
-                #Replace line in leaderboard file
-                leaderboardList = open("leaderboard.txt").read().splitlines()
-                leaderboardList[index] = self.server + " " + self.user + " " + str(self.newPoints)
-                open("leaderboard.txt", "w").write("\n".join(leaderboardList))
-            index = index + 1    
     
-        if userInList == False:
-            #User is not in the leaderboard.
-            leaderboardFile = open("leaderboard.txt", "a+")
-            leaderboardFile.write("\n" + str(serverID) + " " + str(userID) + " " + str(self.newPoints*-1))
-            leaderboardFile.close()   
+    def addPoints(self, serverID, userID, amount, connection):
+        if self.userInDB(userID,connection):
+            with connection.cursor() as cursor:
+                cursor.execute("".join(("SELECT intScore FROM tblUser WHERE userID = ",userID)))
+                oldScore = cursor.fetchone()
+                cursor.execute("".join(("UPDATE tblUser SET intScore = ",oldScore + amount," WHERE userID = ",userID)))
+        else:
+            with connection.cursor() as cursor:
+                cursor.execute("".join(("INSERT INTO tblUser (userID,intCollectionDate,intScore) VALUES (",userID,",",None,",",amount,")")))
+        connection.commit()
+            
+    def subtractPoints(self, serverID, userID, amount, connection):
+        if self.userInDB(userID,connection):
+            with connection.cursor() as cursor:
+                cursor.execute("".join(("SELECT intScore FROM tblUser WHERE userID = ",userID)))
+                oldScore = cursor.fetchone()
+                cursor.execute("".join(("UPDATE tblUser SET intScore = ",oldScore - amount," WHERE userID = ",userID)))
+        connection.commit()
             
     def format(self, attempt):
         #Formats an attempt to make it easier to guess.
@@ -187,46 +132,29 @@ class triviaGame:
         flaggedFile.write(str(self.questionNumber))
         flaggedFile.close()
         
-    def getGlobalLeaderboard(self):
-        leaderboardFile = open("leaderboard.txt", "r")
-        self.leaderboardList = leaderboardFile.read().splitlines()
-        leaderboardFile.close()
+    def getGlobalLeaderboard(self,connection):
         globalScores = []
-        
-        #Adding all of the scores into the unsorted array.
-        i = 1
-        while i < len(self.leaderboardList):
-            splitLine = self.leaderboardList[i].split()
-            newSet = triviaScore(splitLine[0], splitLine[1], splitLine[2])
-            globalScores.append(newSet)
-            i += 1
-        #Sorting elements in previously created array.
-        n = len(globalScores)
-        for i in range(n):
-            for j in range(0, n-i-1):
-                if int(globalScores[j].getScore()) < int(globalScores[j+1].getScore()):
-                    globalScores[j], globalScores[j+1] = globalScores[j+1], globalScores[j]
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT userID, intScore FROM tblUser ORDER BY intScore DESC")
+            for row in cursor:
+                globalScores.append(self.triviaScore(row[0],row[1]))
         return globalScores
     
-    def getLocalLeaderboard(self, serverID):
-        leaderboardFile = open("leaderboard.txt", "r")
-        self.leaderboardList = leaderboardFile.read().splitlines()
-        leaderboardFile.close()
+    def getLocalLeaderboard(self, serverID, connection):
         localScores = []
-        server = str(serverID)
-        i = 1
-        while i < len(self.leaderboardList):
-            splitline = self.leaderboardList[i].split()
-            if splitline[0] == server:
-                newSet = triviaScore(splitline[0], splitline[1], splitline[2])
-                localScores.append(newSet)
-            i += 1
+        with connection.cursor() as cursor:
+            cursor.execute("".join(("SELECT tblUser.userID, tblUser.intScore FROM tblUser, tblServerUser WHERE tblServerUser.serverID = ",serverID," ORDER BY tblUser.intScore DESC")))
+            for row in cursor:
+                localScores.append(self.triviaScore(row[0],row[1]))
+        return localScores
         
-        #Sorting elements in previously created array.
-        n = len(localScores)
-        for i in range(n):
-            for j in range(0, n-i-1):
-                if int(localScores[j].getScore()) < int(localScores[j+1].getScore()):
-                    localScores[j], localScores[j+1] = localScores[j+1], localScores[j]
-        return localScores            
-        
+
+
+
+
+
+
+
+
+
+

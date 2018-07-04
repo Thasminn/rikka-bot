@@ -17,6 +17,7 @@ from discord.emoji import Emoji
 import Mods.EightBall as EightBall
 import Mods.economy as econ
 import Mods.beemovie as beemovie
+import pymysql
 
 # Directory stuff
 root_dir = os.path.dirname(__file__)
@@ -75,6 +76,7 @@ nsfwinsultfile.close()
 client = discord.Client()
 translator = Translator()
 botlist = dbl.Client(client, bltoken)
+connection = pymysql.connect(host='127.0.0.1', user='', password='', db='rikka-bot', charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
 
 # Prefix things
 defaultPrefix = ";"
@@ -92,20 +94,13 @@ eight = EightBall.eightBallGenerator()
 
 def getServerPrefix(guild):
     # Returns the server prefix.
-    # If there is no server prefix set, it returns the defaultPrefix.
-    prefixFile = open("server_prefixes.txt", "r+")
-    prefixList = prefixFile.read().splitlines()
-    prefixFile.close()
-    serverInList = False
-    for line in prefixList:
-        splitLine = line.split()
-        if guild.id == int(splitLine[0]):
-            serverInList = True
-            return splitLine[1]
-    if serverInList == False:
-        # If server does not have default prefix set
+    if econ.guildInDB(guild.id):
+        with connection.cursor as cursor:
+            cursor.execute("".join(("SELECT strPrefix FROM tblServer WHERE serverID = ",guild.id)))
+            return cursor.fetchone()
+    else:
+        # If server does not have default prefix set.
         return defaultPrefix
-
 
 def command(string, message):
     # Builds a command out of the given string.
@@ -303,10 +298,10 @@ async def on_message(message):
             else:
                 victor = message.mentions[victorNumber]
                 if numberOfPlayers < 2:
-                    trivia.subtractPoints(message.guild.id, message.author.id, rewardAmount)
+                    trivia.subtractPoints(message.guild.id, message.author.id, rewardAmount,connection)
                     authorLoses = True
             #TODO embed this and make it pretty.
-            trivia.addPoints(message.guild.id, victor.id, rewardAmount)
+            trivia.addPoints(message.guild.id, victor.id, rewardAmount,connection)
             msg = ("{0.mention} wins! +"+str(rewardAmount)+" points.").format(victor)
             await message.channel.send(msg)
             if authorLoses == True:
@@ -346,19 +341,19 @@ async def on_message(message):
         """
         userID = message.author.id
         serverID = message.guild.id
-        if econ.hasCollectedToday(userID):
+        if econ.hasCollectedToday(userID,connection):
             msg = "{0.author.mention}, you have already collected today. Try again tomorrow!".format(message)
             await message.channel.send(msg)
         else:
             pointsToAdd = randint(1,25)
-            trivia.addPoints(serverID, userID, pointsToAdd)
-            econ.setCollectionDate(userID)
-            msg = "".join(map(str,(message.author.mention,", you have gained ",pointsToAdd," points! Your total points are now ",trivia.getScore(message.author.id),"!")))
+            trivia.addPoints(serverID, userID, pointsToAdd,connection)
+            econ.setCollectionDate(userID,connection)
+            msg = "".join(map(str,(message.author.mention,", you have gained ",pointsToAdd," points! Your total points are now ",trivia.getScore(message.author.id,connection),"!")))
             await message.channel.send(msg)
             
     elif message.content == command("leaderboard global", message):
         scoreList = ""
-        globalScores = trivia.getGlobalLeaderboard()
+        globalScores = trivia.getGlobalLeaderboard(connection)
         if len(globalScores) < 10:
             place = 1
             for score in globalScores:
@@ -383,7 +378,7 @@ async def on_message(message):
         
     elif message.content == command("leaderboard local", message):
         scoreList = ""
-        localScores = trivia.getLocalLeaderboard(message.guild.id)
+        localScores = trivia.getLocalLeaderboard(message.guild.id,connection)
         if len(localScores) < 10:
             place = 1
             for score in localScores:
@@ -398,7 +393,8 @@ async def on_message(message):
             while i < 10:
                 user = client.get_user(int(localScores[i].getUser()))
                 if user != None:
-                    score = localScores[i].getScore()
+                    score = localScores[i].
+                    ()
                     scoreList = scoreList + ("".join((str(place),": ",user.name," with ",score," points!\n")))
                     place = place + 1
                 i = i + 1
@@ -439,7 +435,7 @@ async def on_message(message):
         await message.channel.send(msg)
         
     elif message.content.startswith(command("score", message)):
-        msg = ("{0.author.mention}, your score is " + str(trivia.getScore(message.author.id))).format(message)
+        msg = ("{0.author.mention}, your score is " + str(trivia.getScore(message.author.id,connection))).format(message)
         await message.channel.send(msg)
         
     elif message.content.startswith(command("a", message) + " "):
@@ -452,7 +448,7 @@ async def on_message(message):
                 reward = randint(1,20)
                 msg = ("{0.author.mention}, correct! The answer is " + trivia.getAnswer(message.guild.id)+". +"+ str(reward) +" points!").format(message)
                 await message.channel.send(msg)
-                trivia.addPoints(message.guild.id, message.author.id, reward)
+                trivia.addPoints(message.guild.id, message.author.id, reward,connection)
                 trivia.setSent(message.guild.id, False)
         else:
             msg = "You haven't gotten a question yet!"
@@ -567,32 +563,17 @@ async def on_message(message):
         """
         if message.content.startswith(command("prefix", message)):
             # Changes the prefix to the specified string.
-            prefixFile = open("server_prefixes.txt")
-            prefixList = prefixFile.read().splitlines()
-            prefixFile.close()
-            serverInList = False  # Gotta initialize the variable
-            newPrefix = getRawArgument(command("prefix", message), message)
-            index = 0
-            for line in prefixList:
-                splitLine = line.split()
-                if(message.channel.guild.id == int(splitLine[0])):
-                    # If the server already has a custom prefix set
-                    serverInList = True
-                    prefixFile = open("server_prefixes.txt", "w+")
-                    prefixList[index] = (str(message.channel.guild.id) + " " + newPrefix)
-                    prefixFile.write("\n".join(prefixList))
-                    prefixFile.close()
-                    msg = ("Changed server prefix to " + newPrefix + " !").format(message)
-                    await message.channel.send(msg)
-                index = index + 1
-            if serverInList == False:
-                # If the server does not already have a custom prefix set
-                prefixFile = open("server_prefixes.txt", "a+")
-                prefixFile.write("\n" + str(message.channel.guild.id) + " " + newPrefix)  # Adds line to prefixlist
-                prefixFile.close()
-                msg = ("Set server prefix to " + newPrefix + " !").format(message)
-                await message.channel.send(msg)
-                
+            newPrefix = getRawArgument(command("prefix", message),message)
+            if trivia.guildInDB(message.channel.guild.id()):
+                # If the server is already in the db
+                with connection.cursor as cursor:
+                    cursor.execute("".join(("UPDATE tblServer SET strPrefix = ",newPrefix," WHERE serverID = ",message.channel.guild.id())))
+            else:
+                with connection.cursor as cursor:
+                    ## If the server does not exist in the db yet
+                    cursor.execute("".join(("INSERT INTO tblServer (serverID,strPrefix) VALUES (",message.channel.guild.id(),",",newPrefix)))
+            await message.channel.send("".join(("Set server prefix to ",newPrefix,"!")))
+
         """
         Misc gif commands.
         """
