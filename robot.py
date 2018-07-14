@@ -95,7 +95,7 @@ eight = EightBall.eightBallGenerator()
 def getServerPrefix(guild):
     # Returns the server prefix.
     if econ.guildInDB(guild.id):
-        with connection.cursor as cursor:
+        with connection.cursor() as cursor:
             cursor.execute("".join(("SELECT strPrefix FROM tblServer WHERE serverID = ",guild.id)))
             return cursor.fetchone()
     else:
@@ -566,10 +566,10 @@ async def on_message(message):
             newPrefix = getRawArgument(command("prefix", message),message)
             if trivia.guildInDB(message.channel.guild.id()):
                 # If the server is already in the db
-                with connection.cursor as cursor:
+                with connection.cursor() as cursor:
                     cursor.execute("".join(("UPDATE tblServer SET strPrefix = ",newPrefix," WHERE serverID = ",message.channel.guild.id())))
             else:
-                with connection.cursor as cursor:
+                with connection.cursor() as cursor:
                     ## If the server does not exist in the db yet
                     cursor.execute("".join(("INSERT INTO tblServer (serverID,strPrefix) VALUES (",message.channel.guild.id(),",",newPrefix)))
             await message.channel.send("".join(("Set server prefix to ",newPrefix,"!")))
