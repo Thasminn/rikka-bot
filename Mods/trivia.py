@@ -143,7 +143,7 @@ class triviaGame:
         globalScores = []
         with connection.cursor() as cursor:
             cursor.execute("SELECT userID, intScore FROM tblUser ORDER BY intScore DESC;")
-            res = cursor.fetchone()
+            res = cursor.fetchmany(10)
             globalScores.append(triviaScore(res["userID"],res["intScore"]))
         return globalScores
     
@@ -151,8 +151,15 @@ class triviaGame:
         localScores = []
         with connection.cursor() as cursor:
             cursor.execute(utils.concat(("SELECT tblUser.userID, tblUser.intScore FROM tblUser, tblServerUser WHERE tblServerUser.serverID = ",serverID," ORDER BY tblUser.intScore DESC;")))
-            res = cursor.fetchone()
-            localScores.append(triviaScore(res["userID"],res["intScore"]))
+            res = []
+            for result in cursor:
+                res.append(result)
+            if len(res) < 10
+                max = len(res) - 1
+            elif len(res) > 10
+                max = 9
+            for i in range(0,max):
+                localScores.append(triviaScore(res["userID"],res["intScore"]))
         return localScores
         
 
