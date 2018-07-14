@@ -18,6 +18,7 @@ import Mods.EightBall as EightBall
 import Mods.economy as econ
 import Mods.beemovie as beemovie
 import pymysql
+import Mods.cmdUtils as utils
 
 # Directory stuff
 root_dir = os.path.dirname(__file__)
@@ -96,7 +97,7 @@ def getServerPrefix(guild):
     # Returns the server prefix.
     if econ.guildInDB(guild.id,connection):
         with connection.cursor() as cursor:
-            cursor.execute("".join(("SELECT strPrefix FROM tblServerPrefixes WHERE str(serverID) = ",str(guild.id),";")))
+            cursor.execute(utils.concat(("SELECT strPrefix FROM tblServerPrefixes WHERE str(serverID) = ",guild.id,";")))
             return cursor.fetchone()
     else:
         # If server does not have default prefix set.
@@ -348,7 +349,7 @@ async def on_message(message):
             pointsToAdd = randint(1,25)
             trivia.addPoints(serverID, userID, pointsToAdd,connection)
             econ.setCollectionDate(userID,connection)
-            msg = "".join(map(str,(message.author.mention,", you have gained ",pointsToAdd," points! Your total points are now ",trivia.getScore(message.author.id,connection),"!")))
+            msg = utils.concat((message.author.mention,", you have gained ",pointsToAdd," points! Your total points are now ",trivia.getScore(message.author.id,connection),"!"))
             await message.channel.send(msg)
             
     elif message.content == command("leaderboard global", message):
@@ -385,7 +386,7 @@ async def on_message(message):
                 user = client.get_user(int(score.getUser())).name
                 if user != None:
                     score = score.getScore()
-                    scoreList = scoreList + ("".join((str(place),": ",user.name," with ",score," points!\n")))
+                    scoreList = scoreList + (utils.concat((str(place),": ",user.name," with ",score," points!\n")))
                     place = place + 1
         else:
             i = 0
@@ -395,7 +396,7 @@ async def on_message(message):
                 if user != None:
                     score = localScores[i]
                     ()
-                    scoreList = scoreList + ("".join((str(place),": ",user.name," with ",score," points!\n")))
+                    scoreList = scoreList + (utils.concat((place,": ",user.name," with ",score," points!\n")))
                     place = place + 1
                 i = i + 1
         scoreEmbed = discord.Embed(title= "Local Leaderboard", color=0x107c02, description=scoreList)
@@ -564,19 +565,19 @@ async def on_message(message):
         if message.content.startswith(command("prefix", message)):
             # Changes the prefix to the specified string.
             newPrefix = getRawArgument(command("prefix", message),message)
-            if trivia.guildInDB(message.channel.guild.id,connection):
+            if utils.guildInDB(message.channel.guild.id,connection):
                 # If the server is already in the db
                 with connection.cursor() as cursor:
-                    cursor.execute("".join(map(str,("UPDATE tblServerPrefixes SET strPrefix = ",newPrefix," WHERE str(serverID) = ",message.channel.guild.id(),";"))))
+                    cursor.execute(utils.concat(("UPDATE tblServerPrefixes SET strPrefix = ",newPrefix," WHERE str(serverID) = ",message.channel.guild.id,";")))
             else:
                 with connection.cursor() as cursor:
                     ## If the server does not exist in the db yet
-                    cursor.execute("".join(map(str,("INSERT INTO tblServerPrefixes (serverID,strPrefix) VALUES (",message.channel.guild.id(),",",newPrefix,");"))))
+                    cursor.execute(utils.concat(("INSERT INTO tblServerPrefixes (serverID,strPrefix) VALUES (",message.channel.guild.id,",",newPrefix,");")))
             cursor.commit()
             if not econ.userInDB(message.author.id,connection):
-                cursor.execute("".join(map(str,("INSERT INTO tblServerPrefixesUser (serverID,userID) VALUES (",message.channel.guild.id,",",message.author.id,");"))))
+                cursor.execute(utils.concat(("INSERT INTO tblServerPrefixesUser (serverID,userID) VALUES (",message.channel.guild.id,",",message.author.id,");")))
             cursor.commit()
-            await message.channel.send("".join(("Set server prefix to ",newPrefix,"!")))
+            await message.channel.send(utils.concat(("Set server prefix to ",newPrefix,"!")))
 
         """
         Misc gif commands.
@@ -662,7 +663,7 @@ async def on_ready():
     print("-------")
     print("loaded hugs: " + str(hugCount))
     print("loaded Ramsay quotes: " + str(ramsayCount))
-    print("Loaded questions: " + str(trivia.getQuestionCount()))
+    print("Loaded questions: " + str(getQuestionCount()))
     serversConnected = len(client.guilds)
     usersConnected = len(client.users)
     print("Guilds connected: " + str(serversConnected))  # Returns number of guilds connected to

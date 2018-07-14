@@ -3,9 +3,9 @@ Economy module for Rikka.
 Carlos Saucedo, 2018
 """
 
-import datetime, pymysql
+import datetime, pymysql, trivia
 from random import randint
-import Mods.trivia as  trivia
+import cmdUtils as utils
 
 def getCurrentDay():
     now = datetime.datetime.now()
@@ -13,7 +13,7 @@ def getCurrentDay():
 
 def hasCollectedToday(userID,connection):
         with connection.cursor() as cursor:
-            cursor.execute("".join(("SELECT intCollectionDate FROM tblUser WHERE userID = ",str(userID))))
+            cursor.execute(utils.concat(("SELECT intCollectionDate FROM tblUser WHERE userID = ",userID,";")))
             collectDate = cursor.fetchone()
         if collectDate == getCurrentDay():
             return True
@@ -21,35 +21,13 @@ def hasCollectedToday(userID,connection):
             return False
 
 def setCollectionDate(userID,connection):
-    if userInDB(userID,connection):
+    if utils.userInDB(userID,connection):
         with connection.cursor() as cursor:
-            cursor.execute("".join(("UPDATE tblUser SET intCollectionDate = ", str(getCurrentDay()), " WHERE userID = ", str(userID),";")))
+            cursor.execute(utils.concat(("UPDATE tblUser SET intCollectionDate = ",getCurrentDay(), " WHERE userID = ",userID,";")))
     else:
         with connection.cursor() as cursor:
             cursor.execute("".join(("INSERT INTO tblUser (userID,intCollectionDate) VALUES (", str(userID), ",", str(getCurrentDay()), ");")))
     connection.commit()
-
-def userInDB(userID,connection):
-    with connection.cursor() as cursor:
-        cursor.execute("".join(("SELECT userID FROM tblUser WHERE userID = ", str(userID),";")))
-        if cursor.fetchone() == None:
-            return False
-        else:
-            return True
-
-def guildInDB(serverID,connection):
-    with connection.cursor() as cursor:
-        cursor.execute("".join(("SELECT serverID FROM tblServerPrefixes WHERE serverID = '", str(serverID),"';")))
-        if cursor.fetchone() == None:
-            return False
-        else:
-            return True
-
-def userExists(userID):
-    if userID.getUser() == None:
-        return False
-    else:
-        return True
 
         
         
