@@ -76,7 +76,7 @@ nsfwinsultfile.close()
 client = discord.Client()
 translator = Translator()
 botlist = dbl.Client(client, bltoken)
-connection = pymysql.connect(host='127.0.0.1', user='', password='', db='rikka-bot', charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
+connection = pymysql.connect(host='127.0.0.1', user='', password='bW397', db='rikkadb', charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
 
 # Prefix things
 defaultPrefix = ";"
@@ -393,7 +393,7 @@ async def on_message(message):
             while i < 10:
                 user = client.get_user(int(localScores[i].getUser()))
                 if user != None:
-                    score = localScores[i].
+                    score = localScores[i]
                     ()
                     scoreList = scoreList + ("".join((str(place),": ",user.name," with ",score," points!\n")))
                     place = place + 1

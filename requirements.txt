@@ -2,4 +2,3 @@ asyncio
 googletrans
 bs4
 dblpy
-pymysql

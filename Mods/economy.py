@@ -5,7 +5,7 @@ Carlos Saucedo, 2018
 
 import datetime, pymysql
 from random import randint
-import Mods.trivia as trivia
+import Mods.trivia as  trivia
 
 def getCurrentDay():
     now = datetime.datetime.now()

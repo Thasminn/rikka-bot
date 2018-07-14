@@ -7,7 +7,7 @@ Carlos Saucedo, 2018
 from random import randint
 from Mods.triviaSet import triviaSet
 from Mods.triviaScore import triviaScore
-from Mods.economy import userInDB,getCurrentDay
+from Mods import trivia
 import re, pymysql
 from array import array
 class triviaGame:
@@ -83,7 +83,7 @@ class triviaGame:
         
     def addPoint(self, serverID, userID, connection):
         #Adds a point to the given user's score.
-            if self.userInDB(userID,connection):
+            if self.econ.userInDB(userID,connection):
                 with connection.cursor() as cursor:
                     cursor.execute("".join(("SELECT intScore FROM tblUser WHERE userID = ",userID,";")))
                     oldScore = cursor.fetchone()
