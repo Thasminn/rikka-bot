@@ -39,7 +39,7 @@ def userInDB(userID,connection):
 
 def guildInDB(serverID,connection):
     with connection.cursor() as cursor:
-        cursor.execute("".join(("SELECT serverID FROM tblServerPrefixes WHERE serverID = ", serverID,";")))
+        cursor.execute("".join(("SELECT serverID FROM tblServerPrefixes WHERE serverID = '", serverID,"';")))
         if cursor.fetchone() == None:
             return False
         else:
