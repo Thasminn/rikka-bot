@@ -4,7 +4,7 @@ Carlos Saucedo, 2018
 """
 
 class triviaScore:
-    def __init__(self, guildID, userID, score):
+    def __init__(self, userID, score):
         #self.guildID = guildID
         self.userID = userID
         self.score = score

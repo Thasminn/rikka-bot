@@ -144,7 +144,7 @@ class triviaGame:
         with connection.cursor() as cursor:
             cursor.execute("SELECT userID, intScore FROM tblUser ORDER BY intScore DESC;")
             for row in cursor:
-                globalScores.append(self.triviaScore(row[0],row[1]))
+                globalScores.append(triviaScore(row[0],row[1]))
         return globalScores
     
     def getLocalLeaderboard(self, serverID, connection):
@@ -152,7 +152,7 @@ class triviaGame:
         with connection.cursor() as cursor:
             cursor.execute(utils.concat(("SELECT tblUser.userID, tblUser.intScore FROM tblUser, tblServerUser WHERE tblServerUser.serverID = ",serverID," ORDER BY tblUser.intScore DESC;")))
             for row in cursor:
-                localScores.append(self.triviaScore(row[0],row[1]))
+                localScores.append(triviaScore(row[0],row[1]))
         return localScores
         
 
