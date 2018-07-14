@@ -663,7 +663,7 @@ async def on_ready():
     print("-------")
     print("loaded hugs: " + str(hugCount))
     print("loaded Ramsay quotes: " + str(ramsayCount))
-    print("Loaded questions: " + str(getQuestionCount()))
+    print("Loaded questions: " + str(trivia.getQuestionCount()))
     serversConnected = len(client.guilds)
     usersConnected = len(client.users)
     print("Guilds connected: " + str(serversConnected))  # Returns number of guilds connected to
