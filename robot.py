@@ -568,7 +568,7 @@ async def on_message(message):
             if utils.guildInDB(message.channel.guild.id,connection):
                 # If the server is already in the db
                 with connection.cursor() as cursor:
-                    cursor.execute(utils.concat(("UPDATE tblServerPrefixes SET strPrefix = ",newPrefix," WHERE serverID = ",message.channel.guild.id,";")))
+                    cursor.execute(utils.concat(("UPDATE tblServerPrefixes SET strPrefix = '",newPrefix,"' WHERE serverID = ",message.channel.guild.id,";")))
             else:
                 with connection.cursor() as cursor:
                     ## If the server does not exist in the db yet
