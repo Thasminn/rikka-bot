@@ -383,7 +383,7 @@ async def on_message(message):
         if len(localScores) < 10:
             place = 1
             for score in localScores:
-                user = client.get_user(int(score.getUser())).name
+                user = client.get_user(int(score.getUser()))
                 if user != None:
                     score = score.getScore()
                     scoreList = scoreList + (utils.concat((str(place),": ",user.name," with ",score," points!\n")))
