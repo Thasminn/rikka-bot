@@ -98,7 +98,7 @@ def getServerPrefix(guild):
     if utils.guildInDB(guild.id,connection):
         with connection.cursor() as cursor:
             cursor.execute(utils.concat(("SELECT strPrefix FROM tblServerPrefixes WHERE serverID = ",guild.id,";")))
-            return cursor.fetchone()
+            return cursor.fetchone()["strPrefix"]
     else:
         # If server does not have default prefix set.
         return defaultPrefix
