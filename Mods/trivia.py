@@ -63,7 +63,7 @@ class triviaGame:
     def getScore(self, userID, connection):
             with connection.cursor() as cursor:
                 cursor.execute(utils.concat(("SELECT intScore FROM tblUser WHERE userID = ",userID,";")))
-                return cursor.fetchone()
+                return cursor.fetchone()["intScore"]
 
     def getSent(self, serverID):
         inList = False
