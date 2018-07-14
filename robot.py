@@ -97,7 +97,7 @@ def getServerPrefix(guild):
     # Returns the server prefix.
     if utils.guildInDB(guild.id,connection):
         with connection.cursor() as cursor:
-            cursor.execute(utils.concat(("SELECT strPrefix FROM tblServerPrefixes WHERE str(serverID) = ",guild.id,";")))
+            cursor.execute(utils.concat(("SELECT strPrefix FROM tblServerPrefixes WHERE serverID = ",guild.id,";")))
             return cursor.fetchone()
     else:
         # If server does not have default prefix set.
@@ -568,7 +568,7 @@ async def on_message(message):
             if utils.guildInDB(message.channel.guild.id,connection):
                 # If the server is already in the db
                 with connection.cursor() as cursor:
-                    cursor.execute(utils.concat(("UPDATE tblServerPrefixes SET strPrefix = ",newPrefix," WHERE str(serverID) = ",message.channel.guild.id,";")))
+                    cursor.execute(utils.concat(("UPDATE tblServerPrefixes SET strPrefix = ",newPrefix," WHERE serverID = ",message.channel.guild.id,";")))
             else:
                 with connection.cursor() as cursor:
                     ## If the server does not exist in the db yet
