@@ -361,7 +361,7 @@ async def on_message(message):
                 user = client.get_user(int(score.getUser()))
                 if user != None:
                     score = score.getScore()
-                    scoreList = scoreList + (str(place) + ": "+ user.name + " with "+score + " points!\n")
+                    scoreList = scoreList + (utils.concat((place,": ",user.name," with ",score," points!\n")))
                     place = place + 1
         else:
             i = 0
@@ -370,7 +370,7 @@ async def on_message(message):
                 user = client.get_user(int(globalScores[i].getUser()))
                 if user != None:
                     score = globalScores[i].getScore()
-                    scoreList = scoreList + (str(place) + ": "+ user.name + " with "+score + " points!\n")
+                    scoreList = scoreList + (utils.concat((place,": ",user.name," with ",score," points!\n")))
                     place = place + 1
                 i = i + 1
             
