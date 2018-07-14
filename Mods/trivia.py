@@ -10,7 +10,7 @@ from Mods.triviaScore import triviaScore
 from Mods import trivia
 import re, pymysql
 from array import array
-import cmdUtils as utils
+import Mods.cmdUtils as utils
 
 class triviaGame:
     def __init__(self, questionPath, answerPath):

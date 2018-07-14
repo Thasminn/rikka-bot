@@ -3,9 +3,9 @@ Economy module for Rikka.
 Carlos Saucedo, 2018
 """
 
-import datetime, pymysql, trivia
+import datetime, pymysql, Mods.trivia
 from random import randint
-import cmdUtils as utils
+import Mods.cmdUtils as utils
 
 def getCurrentDay():
     now = datetime.datetime.now()
