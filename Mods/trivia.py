@@ -154,9 +154,9 @@ class triviaGame:
             res = []
             for result in cursor:
                 res.append(result)
-            if len(res) < 10
+            if len(res) < 10:
                 max = len(res) - 1
-            elif len(res) > 10
+            elif len(res) > 10:
                 max = 9
             for i in range(0,max):
                 localScores.append(triviaScore(res["userID"],res["intScore"]))
