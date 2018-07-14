@@ -64,7 +64,7 @@ class triviaGame:
     
     def getScore(self, userID, connection):
             with connection.cursor() as cursor:
-                cursor.execute("".join(("SELECT intScore FROM tblUser WHERE userID = ",userID,";")))
+                cursor.execute("".join(("SELECT intScore FROM tblUser WHERE userID = ",str(userID),";")))
                 return cursor.fetchone()
 
     def getSent(self, serverID):
@@ -85,41 +85,41 @@ class triviaGame:
         #Adds a point to the given user's score.
             if self.econ.userInDB(userID,connection):
                 with connection.cursor() as cursor:
-                    cursor.execute("".join(("SELECT intScore FROM tblUser WHERE userID = ",userID,";")))
+                    cursor.execute("".join(("SELECT intScore FROM tblUser WHERE userID = ",str(userID),";")))
                     oldScore = cursor.fetchone()
-                    cursor.execute("".join(("UPDATE tblUser SET intScore = ",oldScore + 1," WHERE userID = ",userID,";")))
+                    cursor.execute("".join(map(str,("UPDATE tblUser SET intScore = ",(oldScore + 1)," WHERE userID = ",userID,";"))))
             else:
                 with connection.cursor() as cursor:
-                    cursor.execute("".join(("INSERT INTO tblUser (userID,intCollectionDate,intScore) VALUES (",userID,",",None,",",1,");")))
+                    cursor.execute("".join(map(str,("INSERT INTO tblUser (userID,intCollectionDate,intScore) VALUES (",userID,",",None,",",1,");"))))
             if not self.guildInDB(serverID,connection):
                 cursor.execute("".join(("INSERT INTO tblServerPrefixes (serverID) VALUES (",serverID,");")))
-                cursor.execute("".join(("INSERT INTO tblServerPrefixesUser (serverID,userID) VALUES (",serverID,",",userID,");")))
+                cursor.execute("".join(map(str,("INSERT INTO tblServerPrefixesUser (serverID,userID) VALUES (",serverID,",",userID,");"))))
             connection.commit()
             
     
     def addPoints(self, serverID, userID, amount, connection):
         if self.userInDB(userID,connection):
             with connection.cursor() as cursor:
-                cursor.execute("".join(("SELECT intScore FROM tblUser WHERE userID = ",userID,";")))
+                cursor.execute("".join(("SELECT intScore FROM tblUser WHERE userID = ",str(userID),";")))
                 oldScore = cursor.fetchone()
-                cursor.execute("".join(("UPDATE tblUser SET intScore = ",oldScore + amount," WHERE userID = ",userID,";")))
+                cursor.execute("".join(map(str,("UPDATE tblUser SET intScore = ",oldScore + amount," WHERE userID = ",userID,";"))))
         else:
             with connection.cursor() as cursor:
-                cursor.execute("".join(("INSERT INTO tblUser (userID,intCollectionDate,intScore) VALUES (",userID,",",None,",",amount,");")))
+                cursor.execute("".join(map(str,("INSERT INTO tblUser (userID,intCollectionDate,intScore) VALUES (",userID,",",None,",",amount,");"))))
         if not self.guildInDB(serverID,connection):
-            cursor.execute("".join(("INSERT INTO tblServerPrefixes (serverID) VALUES (",serverID,");")))
-            cursor.execute("".join(("INSERT INTO tblServerPrefixesUser (serverID,userID) VALUES (",serverID,",",userID,");")))
+            cursor.execute("".join(("INSERT INTO tblServerPrefixes (serverID) VALUES (",str(serverID),");")))
+            cursor.execute("".join(map(str,("INSERT INTO tblServerPrefixesUser (serverID,userID) VALUES (",serverID,",",userID,");"))))
         connection.commit()
             
     def subtractPoints(self, serverID, userID, amount, connection):
         if self.userInDB(userID,connection):
             with connection.cursor() as cursor:
-                cursor.execute("".join(("SELECT intScore FROM tblUser WHERE userID = ",userID,";")))
+                cursor.execute("".join(("SELECT intScore FROM tblUser WHERE userID = ",str(userID),";")))
                 oldScore = cursor.fetchone()
-                cursor.execute("".join(("UPDATE tblUser SET intScore = ",oldScore - amount," WHERE userID = ",userID,";")))
+                cursor.execute("".join(map(str,("UPDATE tblUser SET intScore = ",(oldScore - amount)," WHERE userID = ",userID,";"))))
         if not self.guildInDB(serverID,connection):
-            cursor.execute("".join(("INSERT INTO tblServerPrefixes (serverID) VALUES (",serverID,");")))
-            cursor.execute("".join(("INSERT INTO tblServerPrefixesUser (serverID,userID) VALUES (",serverID,",",userID,");")))
+            cursor.execute("".join(("INSERT INTO tblServerPrefixes (serverID) VALUES (",str(serverID),");")))
+            cursor.execute("".join(map(str,("INSERT INTO tblServerPrefixesUser (serverID,userID) VALUES (",serverID,",",userID,");"))))
         connection.commit()
             
     def format(self, attempt):
@@ -152,7 +152,7 @@ class triviaGame:
     def getLocalLeaderboard(self, serverID, connection):
         localScores = []
         with connection.cursor() as cursor:
-            cursor.execute("".join(("SELECT tblUser.userID, tblUser.intScore FROM tblUser, tblServerPrefixesUser WHERE tblServerPrefixesUser.serverID = ",serverID," ORDER BY tblUser.intScore DESC;")))
+            cursor.execute("".join(("SELECT tblUser.userID, tblUser.intScore FROM tblUser, tblServerPrefixesUser WHERE tblServerPrefixesUser.serverID = ",str(serverID)," ORDER BY tblUser.intScore DESC;")))
             for row in cursor:
                 localScores.append(self.triviaScore(row[0],row[1]))
         return localScores

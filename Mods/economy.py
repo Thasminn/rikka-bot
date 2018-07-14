@@ -13,7 +13,7 @@ def getCurrentDay():
 
 def hasCollectedToday(userID,connection):
         with connection.cursor() as cursor:
-            cursor.execute("".join(("SELECT intCollectionDate FROM tblUser WHERE userID = ",userID)))
+            cursor.execute("".join(("SELECT intCollectionDate FROM tblUser WHERE userID = ",str(userID))))
             collectDate = cursor.fetchone()
         if collectDate == getCurrentDay():
             return True
@@ -23,15 +23,15 @@ def hasCollectedToday(userID,connection):
 def setCollectionDate(userID,connection):
     if userInDB(userID,connection):
         with connection.cursor() as cursor:
-            cursor.execute("".join(("UPDATE tblUser SET intCollectionDate = ", getCurrentDay(), " WHERE userID = ", userID,";")))
+            cursor.execute("".join(("UPDATE tblUser SET intCollectionDate = ", str(getCurrentDay()), " WHERE userID = ", str(userID),";")))
     else:
         with connection.cursor() as cursor:
-            cursor.execute("".join(("INSERT INTO tblUser (userID,intCollectionDate) VALUES (", userID, ",", getCurrentDay(), ");")))
+            cursor.execute("".join(("INSERT INTO tblUser (userID,intCollectionDate) VALUES (", str(userID), ",", str(getCurrentDay()), ");")))
     connection.commit()
 
 def userInDB(userID,connection):
     with connection.cursor() as cursor:
-        cursor.execute("".join(("SELECT userID FROM tblUser WHERE userID = ", userID,";")))
+        cursor.execute("".join(("SELECT userID FROM tblUser WHERE userID = ", str(userID),";")))
         if cursor.fetchone() == None:
             return False
         else:
@@ -39,7 +39,7 @@ def userInDB(userID,connection):
 
 def guildInDB(serverID,connection):
     with connection.cursor() as cursor:
-        cursor.execute("".join(("SELECT serverID FROM tblServerPrefixes WHERE serverID = '", serverID,"';")))
+        cursor.execute("".join(("SELECT serverID FROM tblServerPrefixes WHERE serverID = '", str(serverID),"';")))
         if cursor.fetchone() == None:
             return False
         else:
