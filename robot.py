@@ -573,10 +573,10 @@ async def on_message(message):
                 with connection.cursor() as cursor:
                     ## If the server does not exist in the db yet
                     cursor.execute(utils.concat(("INSERT INTO tblServerPrefixes (serverID,strPrefix) VALUES (",message.channel.guild.id,",",newPrefix,");")))
-            cursor.commit()
+            connection.commit()
             if not utils.userInDB(message.author.id,connection):
                 cursor.execute(utils.concat(("INSERT INTO tblServerPrefixesUser (serverID,userID) VALUES (",message.channel.guild.id,",",message.author.id,");")))
-            cursor.commit()
+            connection.commit()
             await message.channel.send(utils.concat(("Set server prefix to ",newPrefix,"!")))
 
         """
