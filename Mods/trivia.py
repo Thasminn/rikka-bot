@@ -155,8 +155,8 @@ class triviaGame:
             res = []
             for result in cursor:
                 res.append(result)
-            print(utils.concat(("[DEBUG] number of results: ",len(res)))
-            if len(res) < 10:
+            print(utils.concat(("[DEBUG] number of results: ",len(res))))
+            if len(res) > 10:
                 max = len(res) - 1
             elif len(res) >= 10:
                 max = 9
