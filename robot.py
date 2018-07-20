@@ -38,6 +38,10 @@ rawclevertoken = clevertokenfile.read().splitlines()
 userapi = rawclevertoken[0]
 keyapi = rawclevertoken[1]
 
+dbtokenfile = open("dbtoken.txt", "r")
+rawdbtoken = dbtokenfile.read().splitlines()
+dbtoken = rawdbtoken[0]
+
 # Cleverbot
 try:
     clever = CleverApi.Bot(userapi, keyapi)
@@ -77,7 +81,7 @@ nsfwinsultfile.close()
 client = discord.Client()
 translator = Translator()
 botlist = dbl.Client(client, bltoken)
-connection = pymysql.connect(host='127.0.0.1', user='', password='bW397', db='rikkadb', charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
+connection = pymysql.connect(host='127.0.0.1', user='', password=dbtoken, db='rikkadb', charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
 
 # Prefix things
 defaultPrefix = ";"
