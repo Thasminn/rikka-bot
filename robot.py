@@ -355,6 +355,9 @@ async def on_message(message):
     elif message.content == command("leaderboard global", message):
         scoreList = ""
         globalScores = trivia.getGlobalLeaderboard(connection)
+        print(utils.concat(("[DEBUG] globalScores = ",globalScores)))
+        print(utils.concat(("[DEBUG] globalScores[1] = ",globalScores)))
+        print(utils.concat(("[DEBUG] globalScores[0] = ",globalScores)))
         if len(globalScores) < 10:
             place = 1
             for score in globalScores:
