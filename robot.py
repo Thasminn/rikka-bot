@@ -381,7 +381,9 @@ async def on_message(message):
                 else:
                     with connection.cursor() as cursor:
                         cursor.execute(utils.concat(("DELETE FROM tblUser WHERE userID = ",globalScores[i].getUser())))
+                        connection.commit()
                         cursor.execute(utils.concat(("DELETE FROM tblServerUser WHERE userID = ",globalScores[i].getUser())))
+                        connection.commit()
                 i = i + 1
             
         scoreEmbed = discord.Embed(title= "Global Leaderboard", color=0x107c02, description=scoreList)
