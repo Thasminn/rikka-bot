@@ -8,7 +8,7 @@ from random import randint
 from Mods.triviaSet import triviaSet
 from Mods.triviaScore import triviaScore
 from Mods import trivia
-import re, pymysql
+import re,pymysql
 from array import array
 import Mods.cmdUtils as utils
 
