@@ -81,7 +81,7 @@ nsfwinsultfile.close()
 client = discord.Client()
 translator = Translator()
 botlist = dbl.Client(client, bltoken)
-connection = pymysql.connect(host='127.0.0.1', user='', password=dbtoken, db='rikkadb', charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
+connection = pymysql.connect(host='127.0.0.1', user='ubuntu', password=dbtoken, db='rikkadb', charset='utf8mb4', cursorclass=pymysql.cursors.DictCursor)
 
 # Prefix things
 defaultPrefix = ";"
