@@ -143,7 +143,7 @@ class triviaGame:
         globalScores = []
         with connection.cursor() as cursor:
             cursor.execute("SELECT userID, intScore FROM tblUser ORDER BY intScore DESC;")
-            results = cursor.fetchmany(10)
+            results = cursor.fetchmany(25)
             print(utils.concat(("[DEBUG] getGlobalLeaderboard.results = ",len(results))))
             for res in results:
                 globalScores.append(triviaScore(res["userID"],res["intScore"]))
