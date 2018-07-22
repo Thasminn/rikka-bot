@@ -380,9 +380,8 @@ async def on_message(message):
                     place = place + 1
                 else:
                     with connection.cursor() as cursor:
-                        cursor.execute(utils.concat(("DELETE FROM tblUser WHERE userID = ",globalScores[i].getUser())))
-                        connection.commit()
                         cursor.execute(utils.concat(("DELETE FROM tblServerUser WHERE userID = ",globalScores[i].getUser())))
+                        cursor.execute(utils.concat(("DELETE FROM tblUser WHERE userID = ",globalScores[i].getUser())))
                         connection.commit()
                 i = i + 1
             
