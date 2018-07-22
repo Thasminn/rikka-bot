@@ -2,3 +2,7 @@ asyncio
 googletrans
 bs4
 dblpy
+gizoogle
+googletrans
+pymysql
+aiohttp==2.3.0
