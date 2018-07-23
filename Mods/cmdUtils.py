@@ -47,6 +47,7 @@ def sortLeaderboardDescending(array):
                 list[i-1] = list[i]
                 list[i] = temp
                 swap = True
+    print(concat(("[DEBUG] SLB.list.length = ",len(list))))
     return list
 
 
