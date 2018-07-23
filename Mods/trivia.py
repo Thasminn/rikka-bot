@@ -152,10 +152,10 @@ class triviaGame:
     def getLocalLeaderboard(self, serverID, connection):
         localScores = []
         with connection.cursor() as cursor:
-            cursor.execute(utils.concat(("SELECT tblUser.userID, tblUser.intScore FROM tblUser, tblServerUser WHERE tblServerUser.serverID = ",serverID," ORDER BY tblUser.intScore DESC;")))
+            cursor.execute(utils.concat(("SELECT tblUser.userID, tblUser.intScore FROM tblUser, tblServerUser WHERE tblServerUser.serverID = ",serverID,";")))
             for result in cursor:
                 localScores.append(triviaScore(result["userID"],result["intScore"]))
-        return localScores
+        return utils.sortDescending(localScores)
         
 
 

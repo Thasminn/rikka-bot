@@ -30,3 +30,38 @@ def userExists(userID):
         return False
     else:
         return True
+
+def sortDescending(array):
+    list = array
+    swap = True
+    while swap:
+        swap = False
+        for i in range(1,len(list)-1,1):
+            if list[i-1] > list[i]:
+                temp = list[i-1]
+                list[i-1] = list[i]
+                list[i] = temp
+                swap = True
+            elif list[i] > list[i-1]:
+                temp = list[i-1]
+                list[i-1] = list[i]
+                list[i] = temp
+                swap = True
+    return list
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
