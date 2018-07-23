@@ -153,10 +153,8 @@ class triviaGame:
         localScores = []
         with connection.cursor() as cursor:
             cursor.execute(utils.concat(("SELECT tblUser.userID, tblUser.intScore FROM tblUser, tblServerUser WHERE tblServerUser.serverID = ",serverID," ORDER BY tblUser.intScore DESC;")))
-            res = []
             for result in cursor:
-                res.append(result)
-                localScores.append(triviaScore(res["userID"],res["intScore"]))
+                localScores.append(triviaScore(result["userID"],result["intScore"]))
         return localScores
         
 

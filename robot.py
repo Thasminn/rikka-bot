@@ -102,7 +102,11 @@ def getServerPrefix(guild):
     if utils.guildInDB(guild.id,connection):
         with connection.cursor() as cursor:
             cursor.execute(utils.concat(("SELECT strPrefix FROM tblServerPrefixes WHERE serverID = ",guild.id,";")))
-            return cursor.fetchone()["strPrefix"]
+            prefix = cursor.fetchone()["strPrefix"]
+            if prefix == None:
+                return defaultPrefix
+            else:
+                return prefix
     else:
         # If server does not have default prefix set.
         return defaultPrefix
@@ -359,8 +363,6 @@ async def on_message(message):
     elif message.content == command("leaderboard global", message):
         scoreList = ""
         globalScores = trivia.getGlobalLeaderboard(connection)
-        print(utils.concat(("[DEBUG] globalScores[1] = ",globalScores[1].getScore())))
-        print(utils.concat(("[DEBUG] globalScores[0] = ",globalScores[0].getScore())))
         if len(globalScores) < 10:
             place = 1
             for score in globalScores:
@@ -409,6 +411,11 @@ async def on_message(message):
                     ()
                     scoreList = scoreList + (utils.concat((place,": ",user.name," with ",score," points!\n")))
                     place = place + 1
+                else:
+                    with connection.cursor() as cursor:
+                        cursor.execute(utils.concat(("DELETE FROM tblServerUser WHERE userID = ",globalScores[i].getUser())))
+                        cursor.execute(utils.concat(("DELETE FROM tblUser WHERE userID = ",globalScores[i].getUser())))
+                        connection.commit()
                 i = i + 1
         scoreEmbed = discord.Embed(title= "Local Leaderboard", color=0x107c02, description=scoreList)
         await message.channel.send(embed=scoreEmbed)
@@ -586,7 +593,7 @@ async def on_message(message):
                     cursor.execute(utils.concat(("INSERT INTO tblServerPrefixes (serverID,strPrefix) VALUES (",message.channel.guild.id,",",newPrefix,");")))
             connection.commit()
             if not utils.userInDB(message.author.id,connection):
-                cursor.execute(utils.concat(("INSERT INTO tblServerPrefixesUser (serverID,userID) VALUES (",message.channel.guild.id,",",message.author.id,");")))
+                cursor.execute(utils.concat(("INSERT INTO tblServerUser (serverID,userID) VALUES (",message.channel.guild.id,",",message.author.id,");")))
             connection.commit()
             await message.channel.send(utils.concat(("Set server prefix to ",newPrefix,"!")))
 
