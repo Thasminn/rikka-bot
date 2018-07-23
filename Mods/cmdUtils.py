@@ -35,8 +35,8 @@ def sortLeaderboardDescending(array):
     list = array
     swap = True
     while swap:
-        swap = False
         for i in range(1,len(list)-1,1):
+            swap = False
             if list[i-1].getScore() > list[i].getScore():
                 temp = list[i-1]
                 list[i-1] = list[i]
