@@ -31,18 +31,18 @@ def userExists(userID):
     else:
         return True
 
-def sortDescending(array):
+def sortLeaderboardDescending(array):
     list = array
     swap = True
     while swap:
         swap = False
         for i in range(1,len(list)-1,1):
-            if list[i-1] > list[i]:
+            if list[i-1].getScore() > list[i].getScore():
                 temp = list[i-1]
                 list[i-1] = list[i]
                 list[i] = temp
                 swap = True
-            elif list[i] > list[i-1]:
+            elif list[i].getScore() > list[i-1].getScore():
                 temp = list[i-1]
                 list[i-1] = list[i]
                 list[i] = temp
