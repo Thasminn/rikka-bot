@@ -31,26 +31,6 @@ def userExists(userID):
     else:
         return True
 
-def sortLeaderboardDescending(array):
-    list = array
-    swap = True
-    while swap:
-        for i in range(1,len(list)-1,1):
-            swap = False
-            if list[i-1].getScore() > list[i].getScore():
-                temp = list[i-1]
-                list[i-1] = list[i]
-                list[i] = temp
-                swap = True
-            elif list[i].getScore() > list[i-1].getScore():
-                temp = list[i-1]
-                list[i-1] = list[i]
-                list[i] = temp
-                swap = True
-    print(concat(("[DEBUG] SLB.list.length = ",len(list))))
-    return list
-
-
 
 
 

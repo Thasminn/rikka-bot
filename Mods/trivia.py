@@ -155,7 +155,12 @@ class triviaGame:
             cursor.execute(utils.concat(("SELECT tblUser.userID, tblUser.intScore FROM tblUser, tblServerUser WHERE tblServerUser.serverID = ",serverID,";")))
             for result in cursor:
                 localScores.append(triviaScore(result["userID"],result["intScore"]))
-        return utils.sortLeaderboardDescending(localScores)
+        n = len(localScores)
+        for i in range(n):
+            for j in range(0, n-i-1):
+                if int(localScores[j].getScore()) < int(localScores[j+1].getScore()):
+                    localScores[j], localScores[j+1] = localScores[j+1], localScores[j]
+        return localScores
         
 
 
