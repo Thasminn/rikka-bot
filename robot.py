@@ -407,7 +407,7 @@ async def on_message(message):
             while place <= 10:
                 user = client.get_user(int(localScores[i].getUser()))
                 if user != None:
-                    score = localScores[i]
+                    score = localScores[i].getScore()
                     ()
                     scoreList = scoreList + (utils.concat((place,": ",user.name," with ",score," points!\n")))
                     place = place + 1
